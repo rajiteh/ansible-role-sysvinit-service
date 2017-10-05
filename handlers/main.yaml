@@ -1,0 +1,15 @@
+---
+- name: init script updated
+  command: "true"
+  notify:
+    - run chkconfig
+    - enable and start the service
+
+- name: run chkconfig
+  command: chkconfig --add {{ sysvinit_service_name }}
+
+- name: enable and start the service
+  service:
+    name: "{{ sysvinit_service_name }}"
+    state: restarted
+    enabled: yes

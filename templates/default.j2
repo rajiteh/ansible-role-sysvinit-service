@@ -1,0 +1,9 @@
+{% for entry in sysvinit_service_envs %}
+{% if entry is string %}
+{{ entry }}
+{% elif entry is mapping %}
+{% for k,v in entry.items() %}
+{{ k }}="{{ v }}"
+{% endfor %}
+{% endif %}
+{% endfor %}

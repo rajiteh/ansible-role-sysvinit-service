@@ -1,0 +1,112 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Short-Description: {{ sysvinit_service_description }}
+# Description:       {{ sysvinit_service_long_description|default(sysvinit_service_description) }}
+#
+# chkconfig: {{ sysvinit_service_runlevels }} {{ sysvinit_service_startpriority }} {{ sysvinit_service_endpriority }}
+# pidfile: {{ sysvinit_service_pid_path }}
+#
+#
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+NAME="{{ sysvinit_service_name }}"
+DAEMON="{{ sysvinit_service_bin }}"
+ARGS='{{ sysvinit_service_args }}'
+USER="{{ sysvinit_service_user }}"
+PID="{{ sysvinit_service_pid_path }}"
+LOG="{{ sysvinit_service_log_path }}"
+GOSU="{{ sysvinit_gosu_bin }}"
+RETVAL=0
+
+# Check if DAEMON binary exist
+[ -f $DAEMON ] || exit 0
+
+START="yes"
+ARGS="{{ sysvinit_service_args }}"
+[ -f "{{ sysvinit_default_dir }}/{{ sysvinit_service_name }}" ] && . {{ sysvinit_default_dir }}/{{ sysvinit_service_name }}
+
+service_not_configured () {
+  if [ "$1" != "stop" ]; then
+    printf "\tPlease configure $NAME and then edit /etc/init.d/$NAME\n"
+    printf "\tand set the \"START\" variable to \"yes\" in order to allow\n"
+    printf "\t$NAME to start.\n"
+  fi
+  exit 0
+}
+
+service_checks() {
+  # Check if START variable is set to "yes", if not we exit.
+  if [ "$START" != "yes" ]; then
+    service_not_configured $1
+  fi
+
+  # Fix file ownership
+  [ -f "$LOG" ] && chown $USER "$LOG"
+  [ -f "$PID" ] && chown $USER "$PID"
+
+  # Check if PID exists
+  if [ -f "$PID" ]; then
+    PID_NUMBER=`cat $PID`
+    if [ -z "`ps axf | grep ${PID_NUMBER} | grep -v grep`" ]; then
+      echo "Service was aborted abnormally; clean the PID file and continue..."
+      rm -f "$PID"
+    else
+      echo "Service already started; skip..."
+      exit 1
+    fi
+  fi
+}
+
+start() {
+  service_checks $1
+  $GOSU $USER   $DAEMON $ARGS  > $LOG 2>&1  &
+  RETVAL=$?
+  echo $! > $PID
+}
+
+stop() {
+  killproc -p $PID -b $DAEMON  $NAME
+  RETVAL=$?
+}
+
+reload() {
+  stop
+  start
+}
+
+case "$1" in
+  start)
+    echo -n "Starting - $NAME" $'\n'
+    start
+    ;;
+
+  stop)
+    echo -n "Stopping - $NAME" $'\n'
+    stop
+    ;;
+
+  reload)
+    echo -n "Reloading configuration - $NAME" $'\n'
+    reload
+    ;;
+
+  restart|force-reload)
+    echo -n "Restarting - $NAME" $'\n'
+    stop
+    start
+    ;;
+
+  status)
+    status -p $PID $DAEMON
+    ;;
+
+  *)
+    echo -n $"Usage: /etc/init.d/$NAME {start|stop|reload|restart|force-reload|status}" $'\n'
+    ;;
+esac
+
+exit $RETVAL

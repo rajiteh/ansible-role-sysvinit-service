@@ -1,0 +1,34 @@
+---
+- name: Install libselinux-python
+  yum:
+    name: libselinux-python
+    state: present
+  
+- name: Check if gosu is present
+  stat:
+    path: {{ sysvinit_gosu_bin }}
+    state: present
+  ignore_errors: yes
+  register: gosu_check
+
+- name: Setup gosu
+  get_url:
+    url: "{{ sysvinit_gosu_bin_url }}"
+    dest: "{{ sysvinit_gosu_bin }}"
+    mode: 755
+  when: gosu_check|failed
+
+- name: Template init script and default file.
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - src: default.j2
+      dest: "{{ sysvinit_default_dir }}/{{ sysvinit_service_name }}"
+      mode: 655
+    - src: init_script.j2
+      dest: "{{ sysvinit_initd_dir }}/{{ sysvinit_service_name }}"
+      mode: 755
+  notify:
+    - service script updated

@@ -1,0 +1,11 @@
+---
+sysvinit_service_runlevels: 2345
+sysvinit_service_startpriority: 80
+sysvinit_service_endpriority: 80
+sysvinit_service_pid_path: /var/run/{{ sysvinit_service_name }}.pid
+sysvinit_service_log_path: /var/log/{{ sysvinit_service_name }}.log
+sysvinit_gosu_url: https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64
+sysvinit_gosu_bin: /opt/bin/gosu
+sysvinit_default_dir: /etc/default
+sysvinit_initd_dir: /etc/init.d
+sysvinit_service_envs: []
