@@ -22,11 +22,11 @@ LOG="{{ sysvinit_service_log_path }}"
 GOSU="{{ sysvinit_gosu_bin }}"
 RETVAL=0
 
-# Check if DAEMON binary exist
-[ -f $DAEMON ] || exit 0
+# Exit if DAEMON binary is missing
+[ -f $DAEMON ] || (echo "Error binary $DAEMON is missing!" && exit 0)
 
 START="yes"
-ARGS="{{ sysvinit_service_args }}"
+ARGS='{{ sysvinit_service_args }}'
 [ -f "{{ sysvinit_default_dir }}/{{ sysvinit_service_name }}" ] && . {{ sysvinit_default_dir }}/{{ sysvinit_service_name }}
 
 service_not_configured () {
@@ -63,6 +63,7 @@ service_checks() {
 
 start() {
   service_checks $1
+  echo $GOSU $USER   $DAEMON $ARGS  
   $GOSU $USER   $DAEMON $ARGS  > $LOG 2>&1  &
   RETVAL=$?
   echo $! > $PID

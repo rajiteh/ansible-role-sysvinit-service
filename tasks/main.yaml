@@ -6,9 +6,7 @@
   
 - name: Check if gosu is present
   stat:
-    path: {{ sysvinit_gosu_bin }}
-    state: present
-  ignore_errors: yes
+    path: "{{ sysvinit_gosu_bin }}"
   register: gosu_check
 
 - name: Setup gosu
@@ -16,7 +14,7 @@
     url: "{{ sysvinit_gosu_bin_url }}"
     dest: "{{ sysvinit_gosu_bin }}"
     mode: 755
-  when: gosu_check|failed
+  when: not gosu_check.stat.exists
 
 - name: Template init script and default file.
   template:
@@ -31,4 +29,4 @@
       dest: "{{ sysvinit_initd_dir }}/{{ sysvinit_service_name }}"
       mode: 755
   notify:
-    - service script updated
+    - init script updated

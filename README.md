@@ -39,17 +39,17 @@ Example Playbook
 
 ```yaml
 - hosts: servers
-    roles:
-    - role: sysvinit-service
-        sysvinit_service_name: node-exporter
-        sysvinit_service_description: Prometheus node exporter
-        sysvinit_service_bin: /opt/bin/node_exporter
-        sysvinit_service_args: "-web.listen-address=:9100"
-        sysvinit_service_user: prometheus
-        sysvinit_service_envs:
-            - SOME_ENV: value
-            OTHER_ENV: value
-            - "ANOTHER_ENV=value"
+  roles:
+  - role: sysvinit-service
+    sysvinit_service_name: node-exporter
+    sysvinit_service_description: Prometheus node exporter
+    sysvinit_service_bin: /opt/bin/node_exporter
+    sysvinit_service_args: "-web.listen-address=:9100"
+    sysvinit_service_user: prometheus
+    sysvinit_service_envs:
+    - SOME_ENV: value
+      OTHER_ENV: value
+    - "ANOTHER_ENV=value"
 ```
 
 License
