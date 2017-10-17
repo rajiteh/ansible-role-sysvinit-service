@@ -32,7 +32,7 @@ Role Variables
 |`sysvinit_service_log_path`|str|`/var/log/{{ sysvinit_service_name }}.log`|path to create the log
 
 
-> * Required
+> \* Required
 
 Example Playbook
 ----------------
